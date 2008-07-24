@@ -10,7 +10,7 @@ class QuickPayError(Exception):
     pass
 
 class QuickPay(object):
-    def __init__(self, merchant, secretkey):
+    def __init__(self, merchant=None, secretkey=None):
         self.merchant = merchant
         self.secretkey = secretkey
         self.url = 'https://secure.quickpay.dk/transaction.php'
@@ -24,12 +24,13 @@ class QuickPay(object):
             pbsstat = elm.getAttribute('pbsstat')
             qpstat = elm.getAttribute('qpstat')
             qpstatmsg = elm.getAttribute('qpstatmsg')
+            print qpstatmsg
             assert qpstat == '000'
             assert pbsstat == '000'
             if data['msgtype'] == '1100': assert msgtype == '1110'
             elif data['msgtype'] == '1220': assert msgtype == '1230'
         except (IOError, AssertionError), e:
-            raise
+            raise QuickPayError()
 
         return elm
 

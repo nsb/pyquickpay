@@ -24,7 +24,7 @@ class TestQuickPay(unittest.TestCase):
         self.currency = 'DKK'
         self.expirationdate = EXPIRATION_DATE
         self.cvd = CVD
-        self.qp = QuickPay(self.merchant, self.secret_key)
+        self.qp = QuickPay(merchant=self.merchant, secretkey=self.secret_key)
 
     def testAuthorize(self):
         transaction = self.qp.authorize(cardnumber=self.cardnumber,
