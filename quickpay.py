@@ -24,7 +24,6 @@ class QuickPay(object):
             pbsstat = elm.getAttribute('pbsstat')
             qpstat = elm.getAttribute('qpstat')
             qpstatmsg = elm.getAttribute('qpstatmsg')
-            print qpstatmsg
             assert qpstat == '000'
             assert pbsstat == '000'
             if data['msgtype'] == '1100': assert msgtype == '1110'
