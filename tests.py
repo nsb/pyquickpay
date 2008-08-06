@@ -26,13 +26,18 @@ class TestQuickPay(unittest.TestCase):
         self.cvd = CVD
         self.qp = QuickPay(merchant=self.merchant, secretkey=self.secret_key)
 
-    def testAuthorize(self):
+    def testAuthorizeCapture(self):
+        # authorize
         transaction = self.qp.authorize(cardnumber=self.cardnumber,
                                         amount=self.amount,
                                         ordernum=self._ordernum(),
                                         currency=self.currency,
                                         expirationdate=self.expirationdate,
                                         cvd=self.cvd)
+
+        # capture
+        self.qp.capture(transaction, self.amount * 100)
+
 
     def testSubscription(self):
         # preauth
@@ -56,10 +61,9 @@ class TestQuickPay(unittest.TestCase):
         # capture subscription
         self.qp.capture(recurring_transaction, self.amount)
 
+        # cancel subscription
+        self.qp.reversal(preauth_transaction)
 
-    def testCapture(self):
-        transaction = self.qp.authorize(self.cardnumber, self.amount, self._ordernum(), self.currency, self.expirationdate, self.cvd)
-        self.qp.capture(transaction, self.amount)
 
 if __name__ == '__main__':
     unittest.main()

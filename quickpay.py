@@ -1,5 +1,6 @@
 """
-QuickPay - Interface to the QuickPay gateway
+QuickPay - Interface to QuickPay payment gateway, http://www.quickpay.dk
+Author: Niels Sandholt Busch, Spacergif Software 2008
 """
 import urllib
 import logging
@@ -28,6 +29,7 @@ class QuickPay(object):
             assert pbsstat == '000'
             if data['msgtype'] == '1100': assert msgtype == '1110'
             elif data['msgtype'] == '1220': assert msgtype == '1230'
+            elif data['msgtype'] == '1420': assert msgtype == '1430'
         except (IOError, AssertionError), e:
             raise QuickPayError()
 
@@ -116,7 +118,30 @@ class QuickPay(object):
         elm = self._do_post(data)
 
 
+    def reversal(self, transaction):
+        """
+        Reversal
+        """
+        msgtype = '1420'
+
+        md_input = ''.join((msgtype,
+                            self.merchant,
+                            transaction,
+                            self.secretkey))
+        md5check = md5.new(md_input).hexdigest().upper()
+
+        data = {'msgtype':msgtype,
+                'merchant':self.merchant,
+                'transaction':transaction,
+                'md5check':md5check}
+
+        self._do_post(data)
+
+
     def credit(self):
+        pass
+
+    def status(self):
         pass
 
     def pbsstatus(self):
