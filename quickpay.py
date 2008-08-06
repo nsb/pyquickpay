@@ -8,7 +8,7 @@ import md5
 from xml.dom import minidom
 
 class QuickPayError(Exception):
-    pass
+    "Indicates the operation failed"
 
 class QuickPay(object):
     def __init__(self, merchant=None, secretkey=None):
@@ -30,8 +30,10 @@ class QuickPay(object):
             if data['msgtype'] == '1100': assert msgtype == '1110'
             elif data['msgtype'] == '1220': assert msgtype == '1230'
             elif data['msgtype'] == '1420': assert msgtype == '1430'
-        except (IOError, AssertionError), e:
-            raise QuickPayError()
+        except IOError, e:
+                raise QuickPayError, e
+        except AssertionError, e:
+            raise QuickPayError, qpstatmsg
 
         return elm
 
