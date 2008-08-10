@@ -6,30 +6,40 @@ import urllib
 import logging
 import md5
 from xml.dom import minidom
+import string
+import random
 
 class QuickPayError(Exception):
     "Indicates the operation failed"
 
 class QuickPay(object):
-    def __init__(self, merchant=None, secretkey=None):
+    """
+    Implements Quickpay payment gateway. Use pretend = True for testing
+    """
+    def __init__(self, merchant, secretkey, pretend=False):
         self.merchant = merchant
         self.secretkey = secretkey
+        self.pretend = pretend
         self.url = 'https://secure.quickpay.dk/transaction.php'
 
     def _do_post(self, data):
+        msgtypes = {'1100':'1110', '1220':'1230', '1420':'1430'}
         try:
-            url_obj = urllib.urlopen(self.url, urllib.urlencode(data))
-            doc = minidom.parse(url_obj)
+            if self.pretend:
+                reply = '<?xml version="1.0" encoding="ISO-8859-1"?> \
+                         <values msgtype="%s" pbsstat="000" qpstat="000" qpstatmsg="OK" transaction="%s" />' \
+                         % (msgtypes[data['msgtype']], ''.join([random.choice(string.digits) for x in xrange(7)]))
+                doc = minidom.parseString(reply)
+            else:
+                url_obj = urllib.urlopen(self.url, urllib.urlencode(data))
+                doc = minidom.parse(url_obj)
             elm = doc.documentElement
             msgtype = elm.getAttribute('msgtype')
             pbsstat = elm.getAttribute('pbsstat')
             qpstat = elm.getAttribute('qpstat')
             qpstatmsg = elm.getAttribute('qpstatmsg')
-            assert qpstat == '000'
-            assert pbsstat == '000'
-            if data['msgtype'] == '1100': assert msgtype == '1110'
-            elif data['msgtype'] == '1220': assert msgtype == '1230'
-            elif data['msgtype'] == '1420': assert msgtype == '1430'
+            assert qpstat == pbsstat == '000'
+            assert msgtype == msgtypes[data['msgtype']]
         except IOError, e:
                 raise QuickPayError, e
         except AssertionError, e:
