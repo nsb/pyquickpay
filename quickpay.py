@@ -75,8 +75,7 @@ class QuickPay(object):
             amount = 100
             data.update({'authtype':authtype, 'reference':reference})
 
-        while len(ordernum) < 4:
-            ordernum = '0' + ordernum
+        ordernum = ''.join(['0' for i in range(4-len(ordernum))]) + ordernum
 
         data.update({'msgtype':msgtype,
                      'cardnumber':cardnumber,
